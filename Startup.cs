@@ -12,6 +12,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
+using Microsoft.AspNetCore.OData;
+using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
+
 namespace odata_service
 {
     public class Startup
@@ -26,8 +30,9 @@ namespace odata_service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers()
+                .AddOData(opt => opt.Select().Filter().AddRouteComponents("odata", GetEdmModel()));
 
-            services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "odata_service", Version = "v1" });
@@ -46,6 +51,8 @@ namespace odata_service
 
             app.UseHttpsRedirection();
 
+            app.UseODataRouteDebug();
+
             app.UseRouting();
 
             app.UseAuthorization();
@@ -54,6 +61,13 @@ namespace odata_service
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private static IEdmModel GetEdmModel()
+        {
+            var builder = new ODataConventionModelBuilder();
+            builder.EntitySet<WeatherForecast>(nameof(WeatherForecast));
+            return builder.GetEdmModel();
         }
     }
 }
