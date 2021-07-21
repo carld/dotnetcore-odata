@@ -1,9 +1,13 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace odata_service
 {
     public class WeatherForecast
     {
+        [Key]
+        public int Key { get; set; }
+
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }
